@@ -15,7 +15,7 @@ class CreateCalificacionsTable extends Migration
     {
         Schema::create('calificaciones', function (Blueprint $table) {
             $table->id();
-            $table->int('puntuacion');
+            $table->integer('puntuacion');
             $table->string('comentario')->nullable();
             $table->unsignedBigInteger('usuario_id');
             $table->foreign('usuario_id')->references('id')->on('users')->onDelete('cascade');
