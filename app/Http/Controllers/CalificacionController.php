@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\calificacion;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\DB;
+use App\Models\User;
 class CalificacionController extends Controller
 {
     /**
@@ -15,8 +16,39 @@ class CalificacionController extends Controller
     public function index()
     {
         //
-        $calificaciones = calificacion::all();
-        return response()->json($calificaciones);
+        $usuarios = User::all();
+        if($usuarios->count()>0){
+            foreach($usuarios as $usuario){
+                $usuario['dataOpinion'] = DB::table('calificaciones')
+                ->join('users','users.id','=','calificaciones.usuario_id')
+                ->select('calificaciones.*')
+                ->get();
+            }
+            if($usuario->dataOpinion->count()>0){
+                return response()->json($usuarios);
+            }else{
+                return response()->json(null,404);
+            }
+            
+        }else{
+            return response()->json(null,404);
+        }
+        // if($usuarios->count()>0){
+        //     foreach($usuarios as $usuario){
+        //         $usuario->calificaciones = DB::table('calificaciones')
+        //         ->join('users','users.id','=','calificaciones.usuario_id')
+        //         ->select('calificaciones.*')
+        //         ->get();
+        //     }
+            
+        //     return response()->json($usuarios);
+            
+            
+        // }else{
+        //     return response()->json(null,404);
+        // }
+        
+        
     }
 
     /**
@@ -38,17 +70,13 @@ class CalificacionController extends Controller
     public function store(Request $request)
     {
         //
-        $rules=[
-            'puntuacion' =>'required',
-            'comentario'=>'required',
-            'usuario_id'=>'required'
-        ];
-        $this->validate($request, $rules);
-        $data = $request->except(['_token']);
-        calificacion::create($data);
-        return response()->json([
-            'message'=> 'Se ha guardado la informacion correctamente'
+        
+        $request = calificacion::create([
+            'puntuacion'=> $request->puntuacion,
+            'comentario'=> $request->comentario,
+            'usuario_id'=> $request->usuario_id,
         ]);
+        return response()->json($request,201);
     }
 
     /**
@@ -83,12 +111,7 @@ class CalificacionController extends Controller
     public function update(Request $request, calificacion $calificacion)
     {
         //
-        $rules=[
-            'puntuacion' =>'required',
-            'comentario'=>'required',
-            'usuario_id'=>'required'
-        ];
-        $this->validate($request, $rules);
+        
         
         $data = $request->except(['_token']);
         calificacion::where('usuario_id','=', $request['usuario_id'])->update($data);

@@ -14,4 +14,5 @@ class calificacion extends Model
         'comentario',
         'usuario_id'
     ];
+    public $timestamps=false;
 }
