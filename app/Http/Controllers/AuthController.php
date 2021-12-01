@@ -10,32 +10,30 @@ use Illuminate\Support\Facades\Hash;
 class AuthController extends Controller
 {
     public function signup(Request $request){
-        $rules =[
-            'firstname'=> 'required | string',
-            'lastname'=> 'required | string',
-            'username'=> 'required | unique:users',
-            'email'=> 'required | string | email | unique:users',
-            'password'=> 'required',
-            'c_password' => 'required | same:password'
-        ];
-        $this->validate($request, $rules);
-        $user = new User([
+        // $rules =[
+        //     'firstname'=> 'required | string',
+        //     'lastname'=> 'required | string',
+        //     'username'=> 'required | unique:users',
+        //     'email'=> 'required | string | email | unique:users',
+        //     'password'=> 'required',
+        //     'cpassword' => 'required | same:password'
+        // ];
+        // $this->validate($request, $rules);
+        $password = Hash::make($request->password);
+        $user = User::create([
             'firstname'=> $request->firstname,
             'lastname'=> $request->lastname,
             'username'=> $request->username,
-            'email'=>$request->email,
-            'password'=> Hash::make($request->password)
+            'email'=> $request->email,
+            'password'=> $password,
         ]);
-        $user->save();
-        return response()->json([
-            'message' => 'Successfully created user!'
-        ], 201);
+
+        return $user;
     }
     public function login(Request $request){
         $rules = [
             'email'=>'required',
-            'password'=> 'required',
-            'remember_me'=> 'boolean',
+            'password'=> 'required'
         ];
         $this->validate($request, $rules);
         $credentials = request(['email','password']);
@@ -49,13 +47,13 @@ class AuthController extends Controller
         if ($request->remember_me)
             $token->expires_at = Carbon::now()->addWeeks(1);
         $token->save();
-        return response()->json([
-            'access_token' => $tokenResult->accessToken,
-            'token_type' => 'Bearer',
-            'expires_at' => Carbon::parse(
-                $tokenResult->token->expires_at
-            )->toDateTimeString()
-        ]);
+        $user['access_token'] = $tokenResult->accessToken;
+        $user['token_type'] = 'Bearer';
+        $user['token_type'] = Carbon::parse(
+            $tokenResult->token->expires_at
+        )->toDateTimeString();
+
+        return response()->json($user);
     }
     
     public function logout(Request $request){

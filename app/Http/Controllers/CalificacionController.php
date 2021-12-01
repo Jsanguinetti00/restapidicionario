@@ -15,6 +15,8 @@ class CalificacionController extends Controller
     public function index()
     {
         //
+        $calificaciones = calificacion::all();
+        return response()->json($calificaciones);
     }
 
     /**
@@ -36,6 +38,17 @@ class CalificacionController extends Controller
     public function store(Request $request)
     {
         //
+        $rules=[
+            'puntuacion' =>'required',
+            'comentario'=>'required',
+            'usuario_id'=>'required'
+        ];
+        $this->validate($request, $rules);
+        $data = $request->except(['_token']);
+        calificacion::create($data);
+        return response()->json([
+            'message'=> 'Se ha guardado la informacion correctamente'
+        ]);
     }
 
     /**
@@ -70,6 +83,18 @@ class CalificacionController extends Controller
     public function update(Request $request, calificacion $calificacion)
     {
         //
+        $rules=[
+            'puntuacion' =>'required',
+            'comentario'=>'required',
+            'usuario_id'=>'required'
+        ];
+        $this->validate($request, $rules);
+        
+        $data = $request->except(['_token']);
+        calificacion::where('usuario_id','=', $request['usuario_id'])->update($data);
+        return response()->json([
+            'message'=> 'Se ha guardado la informacion correctamente'
+        ]);
     }
 
     /**
@@ -81,5 +106,6 @@ class CalificacionController extends Controller
     public function destroy(calificacion $calificacion)
     {
         //
+        calificacion::where('usuario_id','=', $calificacion)->destroy();
     }
 }
