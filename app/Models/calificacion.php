@@ -10,9 +10,12 @@ class calificacion extends Model
     use HasFactory;
     protected $table="calificaciones";
     protected $fillable =[
-        'puntuacion',
+        'firstcal',
+        'secondcal',
+        'thirdcal',
+        'fourcal',
         'comentario',
-        'usuario_id'
+        'usuario_id',
     ];
     public $timestamps=false;
 }
